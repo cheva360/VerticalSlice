@@ -168,10 +168,10 @@ Rigidbody:
     m_Bits: 384
   m_ImplicitCom: 1
   m_ImplicitTensor: 1
-  m_UseGravity: 1
+  m_UseGravity: 0
   m_IsKinematic: 0
   m_Interpolate: 0
-  m_Constraints: 112
+  m_Constraints: 120
   m_CollisionDetection: 0
 --- !u!144 &95613314
 CharacterJoint:
@@ -276,10 +276,10 @@ Rigidbody:
     m_Bits: 384
   m_ImplicitCom: 1
   m_ImplicitTensor: 1
-  m_UseGravity: 1
-  m_IsKinematic: 1
+  m_UseGravity: 0
+  m_IsKinematic: 0
   m_Interpolate: 0
-  m_Constraints: 112
+  m_Constraints: 120
   m_CollisionDetection: 0
 --- !u!144 &98008816
 CharacterJoint:
@@ -549,14 +549,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 330585543}
   serializedVersion: 2
-  m_LocalRotation: {x: -0.0000004840031, y: -0.00000016791832, z: 0.000035518762,
-    w: 1}
-  m_LocalPosition: {x: -0.000025402864, y: 0.32710072, z: -3.5}
+  m_LocalRotation: {x: 0.014660208, y: 0, z: 0, w: 0.99989253}
+  m_LocalPosition: {x: -0.000025402864, y: 0.69, z: -3.5}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 2097974615}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 1.68, y: 0, z: 0}
 --- !u!114 &330585547
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -611,7 +610,6 @@ GameObject:
   m_Component:
   - component: {fileID: 378983676}
   - component: {fileID: 378983678}
-  - component: {fileID: 378983677}
   m_Layer: 0
   m_Name: LeftHand_target
   m_TagString: Untagged
@@ -634,18 +632,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1026734207}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!75 &378983677
-ConstantForce:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 378983675}
-  m_Enabled: 1
-  m_Force: {x: 0, y: -5, z: 0}
-  m_RelativeForce: {x: 0, y: 0, z: 0}
-  m_Torque: {x: 0, y: 0, z: 0}
-  m_RelativeTorque: {x: 0, y: 0, z: 0}
 --- !u!54 &378983678
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -655,7 +641,7 @@ Rigidbody:
   m_GameObject: {fileID: 378983675}
   serializedVersion: 4
   m_Mass: 1.25
-  m_Drag: 0
+  m_Drag: 15
   m_AngularDrag: 0.25
   m_CenterOfMass: {x: 0, y: 0, z: 0}
   m_InertiaTensor: {x: 1, y: 1, z: 1}
@@ -801,7 +787,6 @@ GameObject:
   m_Component:
   - component: {fileID: 419046794}
   - component: {fileID: 419046796}
-  - component: {fileID: 419046798}
   m_Layer: 0
   m_Name: RightHand_target
   m_TagString: Untagged
@@ -833,7 +818,7 @@ Rigidbody:
   m_GameObject: {fileID: 419046793}
   serializedVersion: 4
   m_Mass: 1.25
-  m_Drag: 0
+  m_Drag: 15
   m_AngularDrag: 0.25
   m_CenterOfMass: {x: 0, y: 0, z: 0}
   m_InertiaTensor: {x: 1, y: 1, z: 1}
@@ -851,18 +836,6 @@ Rigidbody:
   m_Interpolate: 1
   m_Constraints: 40
   m_CollisionDetection: 0
---- !u!75 &419046798
-ConstantForce:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 419046793}
-  m_Enabled: 1
-  m_Force: {x: 0, y: -5, z: 0}
-  m_RelativeForce: {x: 0, y: 0, z: 0}
-  m_Torque: {x: 0, y: 0, z: 0}
-  m_RelativeTorque: {x: 0, y: 0, z: 0}
 --- !u!1 &422204101
 GameObject:
   m_ObjectHideFlags: 0
@@ -1125,16 +1098,25 @@ MonoBehaviour:
       mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089","$version":"A"},"$version":"A"},{"name":"LMaxDistance","value":{"$content":0.7,"$type":"System.Single"},"typeHandle":{"Identification":"System.Single,
       mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089","$version":"A"},"$version":"A"},{"name":"rOffset","value":{"x":0.0,"y":0.0,"z":0.0,"$type":"UnityEngine.Vector3"},"typeHandle":{"Identification":"UnityEngine.Vector3,
       UnityEngine.CoreModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null","$version":"A"},"$version":"A"},{"name":"LOffset","value":{"x":0.0,"y":0.0,"z":0.0,"$type":"UnityEngine.Vector3"},"typeHandle":{"Identification":"UnityEngine.Vector3,
+      UnityEngine.CoreModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null","$version":"A"},"$version":"A"},{"name":"playerOffset","value":{"x":0.0,"y":0.0,"z":0.0,"$type":"UnityEngine.Vector3"},"typeHandle":{"Identification":"UnityEngine.Vector3,
       UnityEngine.CoreModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null","$version":"A"},"$version":"A"},{"name":"rDistance","value":{"$content":0.0,"$type":"System.Single"},"typeHandle":{"Identification":"System.Single,
       mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089","$version":"A"},"$version":"A"},{"name":"LDistance","value":{"$content":0.0,"$type":"System.Single"},"typeHandle":{"Identification":"System.Single,
+      mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089","$version":"A"},"$version":"A"},{"name":"playerDistance","value":{"$content":0.0,"$type":"System.Single"},"typeHandle":{"Identification":"System.Single,
       mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089","$version":"A"},"$version":"A"},{"name":"rConstrainedPosition","value":{"x":0.0,"y":0.0,"z":0.0,"$type":"UnityEngine.Vector3"},"typeHandle":{"Identification":"UnityEngine.Vector3,
       UnityEngine.CoreModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null","$version":"A"},"$version":"A"},{"name":"LConstrainedPosition","value":{"x":0.0,"y":0.0,"z":0.0,"$type":"UnityEngine.Vector3"},"typeHandle":{"Identification":"UnityEngine.Vector3,
-      UnityEngine.CoreModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null","$version":"A"},"$version":"A"}],"$version":"A"},"$version":"A"}}'
+      UnityEngine.CoreModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null","$version":"A"},"$version":"A"},{"name":"playerConstrainedPosition","value":{"x":0.0,"y":0.0,"z":0.0,"$type":"UnityEngine.Vector3"},"typeHandle":{"Identification":"UnityEngine.Vector3,
+      UnityEngine.CoreModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null","$version":"A"},"$version":"A"},{"name":"armSpeed","value":{"x":6.0,"y":6.0,"$type":"UnityEngine.Vector2"},"typeHandle":{"Identification":"UnityEngine.Vector2,
+      UnityEngine.CoreModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null","$version":"A"},"$version":"A"},{"name":"playerSpeed","value":{"x":2.2,"y":2.2,"$type":"UnityEngine.Vector2"},"typeHandle":{"Identification":"UnityEngine.Vector2,
+      UnityEngine.CoreModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null","$version":"A"},"$version":"A"},{"name":"PlayerRigidbody","value":{"$content":4,"$type":"UnityEngine.Object"},"typeHandle":{"Identification":"UnityEngine.Rigidbody,
+      UnityEngine.PhysicsModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null","$version":"A"},"$version":"A"},{"name":"rGrab","value":{"$content":false,"$type":"System.Boolean"},"typeHandle":{"Identification":"System.Boolean,
+      mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089","$version":"A"},"$version":"A"},{"name":"lGrab","value":{"$content":false,"$type":"System.Boolean"},"typeHandle":{"Identification":"System.Boolean,
+      mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089","$version":"A"},"$version":"A"}],"$version":"A"},"$version":"A"}}'
     _objectReferences:
     - {fileID: 378983678}
     - {fileID: 419046796}
     - {fileID: 757478639}
     - {fileID: 2017481030}
+    - {fileID: 2097974613}
 --- !u!114 &834646819
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1298,10 +1280,10 @@ Rigidbody:
     m_Bits: 384
   m_ImplicitCom: 1
   m_ImplicitTensor: 1
-  m_UseGravity: 1
+  m_UseGravity: 0
   m_IsKinematic: 0
   m_Interpolate: 0
-  m_Constraints: 112
+  m_Constraints: 120
   m_CollisionDetection: 0
 --- !u!144 &901598138
 CharacterJoint:
@@ -1461,10 +1443,10 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 419046794}
-  - {fileID: 1374046057}
   - {fileID: 378983676}
+  - {fileID: 419046794}
   - {fileID: 217395993}
+  - {fileID: 1374046057}
   m_Father: {fileID: 2097974615}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!4 &1040888765 stripped
@@ -2259,6 +2241,21 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 4
       objectReference: {fileID: 0}
+    - target: {fileID: -3321919801592875672, guid: 43ffd409171eb4d4395d9f727393c6ff,
+        type: 3}
+      propertyPath: m_LocalScale.x
+      value: 0.90404
+      objectReference: {fileID: 0}
+    - target: {fileID: -3321919801592875672, guid: 43ffd409171eb4d4395d9f727393c6ff,
+        type: 3}
+      propertyPath: m_LocalScale.y
+      value: 0.90404
+      objectReference: {fileID: 0}
+    - target: {fileID: -3321919801592875672, guid: 43ffd409171eb4d4395d9f727393c6ff,
+        type: 3}
+      propertyPath: m_LocalScale.z
+      value: 0.90404
+      objectReference: {fileID: 0}
     - target: {fileID: -3086436065929644917, guid: 43ffd409171eb4d4395d9f727393c6ff,
         type: 3}
       propertyPath: m_Name
@@ -2587,6 +2584,21 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 6515712193588681746, guid: 43ffd409171eb4d4395d9f727393c6ff,
+        type: 3}
+      propertyPath: m_LocalScale.x
+      value: 0.75756
+      objectReference: {fileID: 0}
+    - target: {fileID: 6515712193588681746, guid: 43ffd409171eb4d4395d9f727393c6ff,
+        type: 3}
+      propertyPath: m_LocalScale.y
+      value: 0.75756
+      objectReference: {fileID: 0}
+    - target: {fileID: 6515712193588681746, guid: 43ffd409171eb4d4395d9f727393c6ff,
+        type: 3}
+      propertyPath: m_LocalScale.z
+      value: 0.75756
+      objectReference: {fileID: 0}
     - target: {fileID: 7078722787440015773, guid: 43ffd409171eb4d4395d9f727393c6ff,
         type: 3}
       propertyPath: m_LocalRotation.w
@@ -2679,6 +2691,10 @@ PrefabInstance:
         type: 3}
       insertIndex: -1
       addedObject: {fileID: 2097974613}
+    - targetCorrespondingSourceObject: {fileID: 1082271958561512970, guid: 43ffd409171eb4d4395d9f727393c6ff,
+        type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 2097974616}
     - targetCorrespondingSourceObject: {fileID: 3135921509060577837, guid: 43ffd409171eb4d4395d9f727393c6ff,
         type: 3}
       insertIndex: -1
@@ -2819,10 +2835,10 @@ Rigidbody:
     m_Bits: 384
   m_ImplicitCom: 1
   m_ImplicitTensor: 1
-  m_UseGravity: 1
+  m_UseGravity: 0
   m_IsKinematic: 0
   m_Interpolate: 0
-  m_Constraints: 112
+  m_Constraints: 120
   m_CollisionDetection: 0
 --- !u!65 &2097974614
 BoxCollider:
@@ -2851,6 +2867,18 @@ Transform:
     type: 3}
   m_PrefabInstance: {fileID: 1996894499}
   m_PrefabAsset: {fileID: 0}
+--- !u!75 &2097974616
+ConstantForce:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2097974611}
+  m_Enabled: 1
+  m_Force: {x: 0, y: -50, z: 0}
+  m_RelativeForce: {x: 0, y: 0, z: 0}
+  m_Torque: {x: 0, y: 0, z: 0}
+  m_RelativeTorque: {x: 0, y: 0, z: 0}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
