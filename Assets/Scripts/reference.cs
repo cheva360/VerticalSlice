@@ -14,6 +14,10 @@ public class DoubleCircularConstraint : MonoBehaviour
     [Tooltip("How strictly the velocity is killed when hitting the edge.")]
     public float frictionOnEdge = 1f;
 
+    [Tooltip("Strength of position correction (0-1). Lower values reduce jitter.")]
+    [Range(0.1f, 1f)]
+    public float correctionStrength = 0.8f;
+
     private Rigidbody rb;
 
     void Awake()
@@ -26,37 +30,54 @@ public class DoubleCircularConstraint : MonoBehaviour
         if (!handA || !handB) return;
 
         Vector3 currentPos = rb.position;
-        Vector3 currentVelocity = rb.velocity; // Use .velocity in older Unity versions
+        Vector3 currentVelocity = rb.velocity;
 
-        // We calculate corrections for both hands
-        Vector3 posCorrectionA = Vector3.zero;
-        Vector3 velCorrectionA = Vector3.zero;
+        // Calculate corrections for both hands
+        bool outsideA = CalculateCorrection(currentPos, currentVelocity, handA.position, radiusA, 
+            out Vector3 posCorrectionA, out Vector3 velCorrectionA, out float violationA);
 
-        Vector3 posCorrectionB = Vector3.zero;
-        Vector3 velCorrectionB = Vector3.zero;
+        bool outsideB = CalculateCorrection(currentPos, currentVelocity, handB.position, radiusB, 
+            out Vector3 posCorrectionB, out Vector3 velCorrectionB, out float violationB);
 
-        // Process Hand A
-        bool outsideA = CalculateCorrection(currentPos, currentVelocity, handA.position, radiusA, out posCorrectionA, out velCorrectionA);
-
-        // Process Hand B
-        bool outsideB = CalculateCorrection(currentPos, currentVelocity, handB.position, radiusB, out posCorrectionB, out velCorrectionB);
-
-        // Apply Position: MovePosition is better for interpolated physics
         if (outsideA || outsideB)
         {
-            // Sum the corrections and apply to the Rigidbody
-            Vector3 finalPos = currentPos + posCorrectionA + posCorrectionB;
-            rb.MovePosition(new Vector3(finalPos.x, finalPos.y, currentPos.z));
+            // Apply position correction using velocity-based approach (smoother)
+            Vector3 totalPosCorrection = Vector3.zero;
 
-            // Apply Velocity: Subtract the outward momentum for each violated constraint
+            if (outsideA && outsideB)
+            {
+                // When violating both constraints, prioritize the more violated one
+                // or blend based on violation severity
+                float totalViolation = violationA + violationB;
+                float weightA = violationA / totalViolation;
+                float weightB = violationB / totalViolation;
+                
+                totalPosCorrection = (posCorrectionA * weightA + posCorrectionB * weightB);
+            }
+            else if (outsideA)
+            {
+                totalPosCorrection = posCorrectionA;
+            }
+            else
+            {
+                totalPosCorrection = posCorrectionB;
+            }
+
+            // Apply correction via velocity instead of direct position for smoother movement
+            Vector3 correctionVelocity = totalPosCorrection / Time.fixedDeltaTime;
+            rb.velocity += correctionVelocity * correctionStrength;
+
+            // Kill outward velocity
             rb.velocity -= (velCorrectionA + velCorrectionB);
         }
     }
 
-    private bool CalculateCorrection(Vector3 pos, Vector3 vel, Vector3 center, float radius, out Vector3 posCorr, out Vector3 velCorr)
+    private bool CalculateCorrection(Vector3 pos, Vector3 vel, Vector3 center, float radius, 
+        out Vector3 posCorr, out Vector3 velCorr, out float violation)
     {
         posCorr = Vector3.zero;
         velCorr = Vector3.zero;
+        violation = 0f;
 
         // X-Y Distance check
         Vector2 offset = new Vector2(pos.x - center.x, pos.y - center.y);
@@ -64,18 +85,18 @@ public class DoubleCircularConstraint : MonoBehaviour
 
         if (dist > radius)
         {
+            violation = dist - radius; // How far outside the radius
+
             // 1. Position Correction
             Vector2 normal = offset.normalized;
             Vector2 targetPos = (Vector2)center + (normal * radius);
             posCorr = new Vector3(targetPos.x - pos.x, targetPos.y - pos.y, 0);
 
             // 2. Velocity Correction (Outward momentum)
-            // Dot product tells us how much we are moving 'away' from the center
             float outwardSpeed = Vector2.Dot(new Vector2(vel.x, vel.y), normal);
 
             if (outwardSpeed > 0)
             {
-                // We return the amount of velocity to subtract
                 velCorr = new Vector3(normal.x, normal.y, 0) * outwardSpeed * frictionOnEdge;
             }
 
@@ -83,30 +104,5 @@ public class DoubleCircularConstraint : MonoBehaviour
         }
 
         return false;
-    }
-
-    private void OnDrawGizmos()
-    {
-        if (!handA || !handB) return;
-
-        Gizmos.color = Color.green;
-        DrawCircle(handA.position, radiusA);
-
-        Gizmos.color = Color.blue;
-        DrawCircle(handB.position, radiusB);
-    }
-
-    private void DrawCircle(Vector3 center, float radius)
-    {
-        float segments = 30;
-        for (int i = 0; i < segments; i++)
-        {
-            float angle1 = (i / segments) * Mathf.PI * 2;
-            float angle2 = ((i + 1) / segments) * Mathf.PI * 2;
-            Gizmos.DrawLine(
-                center + new Vector3(Mathf.Cos(angle1) * radius, Mathf.Sin(angle1) * radius, 0),
-                center + new Vector3(Mathf.Cos(angle2) * radius, Mathf.Sin(angle2) * radius, 0)
-            );
-        }
     }
 }
