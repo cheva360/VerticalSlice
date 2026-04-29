@@ -1,11 +1,10 @@
 ﻿using UnityEngine;
 
-[RequireComponent(typeof(Rigidbody))]
 public class DoubleCircularConstraint : MonoBehaviour
 {
     [Header("Anchors")]
-    public Rigidbody handArb;
-    public Rigidbody handBrb;
+    [SerializeField] private Rigidbody handArb;
+    [SerializeField] private Rigidbody handBrb;
     
     private Transform handA;
     private Transform handB;
@@ -20,7 +19,7 @@ public class DoubleCircularConstraint : MonoBehaviour
     [Tooltip("Small buffer to prevent jittering (e.g., 0.01f)")]
     public float edgeTolerance = 0.01f;
 
-    public Rigidbody rb;
+    [SerializeField] private Rigidbody rb;
 
     void Awake()
     {
