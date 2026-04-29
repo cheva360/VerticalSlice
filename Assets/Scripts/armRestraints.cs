@@ -15,7 +15,7 @@ public class DoubleCircularConstraint : MonoBehaviour
 
     [Tooltip("How strictly the velocity is killed when hitting the edge.")]
     public float frictionOnEdge = 1f;
-
+    
     [Tooltip("Small buffer to prevent jittering (e.g., 0.01f)")]
     public float edgeTolerance = 0.01f;
 
@@ -55,7 +55,7 @@ public class DoubleCircularConstraint : MonoBehaviour
         if (outsideA || outsideB)
         {
             Vector3 finalPos = currentPos + posCorrectionA + posCorrectionB;
-            rb.MovePosition(new Vector3(finalPos.x, finalPos.y, currentPos.z));
+            rb.position = new Vector3(finalPos.x, finalPos.y, currentPos.z); // Direct assignment
             rb.velocity -= (velCorrectionA + velCorrectionB);
         }
     }
@@ -68,7 +68,7 @@ public class DoubleCircularConstraint : MonoBehaviour
         Vector2 offset = new Vector2(pos.x - center.x, pos.y - center.y);
         float dist = offset.magnitude;
 
-        if (dist > radius + edgeTolerance)
+        if (dist > radius)
         {
             Vector2 normal = offset.normalized;
             Vector2 targetPos = (Vector2)center + (normal * radius);
