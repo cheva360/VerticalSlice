@@ -16,6 +16,15 @@
                     "initialStateCheck": true
                 },
                 {
+                    "name": "Mouse",
+                    "type": "Value",
+                    "id": "2d62b569-df56-4c22-8b0f-dfde18c8d6ca",
+                    "expectedControlType": "Vector2",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
+                },
+                {
                     "name": "RStick",
                     "type": "Value",
                     "id": "dfa14166-c0f9-447a-8455-caf949a32cc0",
@@ -57,6 +66,17 @@
                 },
                 {
                     "name": "",
+                    "id": "ab2f153e-15ee-47d2-b0e0-865f1711ad68",
+                    "path": "<Mouse>/delta",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Mouse",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
                     "id": "09bdd058-c1a3-4ecc-a553-d67b622c3ba0",
                     "path": "<Gamepad>/rightStick",
                     "interactions": "",
@@ -79,8 +99,30 @@
                 },
                 {
                     "name": "",
+                    "id": "4f0226c9-9bd8-4122-848f-09edb750a084",
+                    "path": "<Mouse>/rightButton",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "R2",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
                     "id": "48407cb9-bd80-4ae3-bdfe-3cabdd41c663",
                     "path": "<Gamepad>/leftTrigger",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "L2",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "a2f919e3-fe5e-4140-8eec-d9ebde12e17b",
+                    "path": "<Mouse>/leftButton",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
