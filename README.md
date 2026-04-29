@@ -4,6 +4,7 @@
 
 2. The State Machine updates the players hands when the player is grabbing onto a grabbable surface. Each hand has a trigger collider that detects whether its hitting a collider tagged as rock, and if it is while the corresponding grab button is being held, it will update the rigs hand to look like it is grabbing.
 
+<img width="1762" height="645" alt="image" src="https://github.com/user-attachments/assets/cf9e4f74-aab8-47e9-a44c-433a7deff2a7" />
 
 
 ## Milestone 2 Devlog
