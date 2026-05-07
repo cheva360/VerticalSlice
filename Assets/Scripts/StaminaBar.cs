@@ -16,6 +16,8 @@ public class StaminaBar : MonoBehaviour
 
     [Tooltip("A second radial Image placed BEHIND the green fill — shows the red drain trail.")]
     [SerializeField] private Image staminaTrailImage;
+    [SerializeField] private Image BackingImage;
+
 
     [Header("Stamina Settings")]
     [Tooltip("Maximum stamina value.")]
@@ -59,16 +61,38 @@ public class StaminaBar : MonoBehaviour
     [Tooltip("How many times per second the bar flashes during recovery.")]
     public float flashFrequency = 3f;
 
+    [Header("Visibility Fade")]
+    [Tooltip("Seconds to fade OUT when stamina reaches max.")]
+    public float fadeOutDuration = 1f;
+
+    [Tooltip("Seconds to fade IN when stamina is not at max.")]
+    public float fadeInDuration = 0.5f;
+
+    [Tooltip("Easing curve for fade in/out (X = normalized time, Y = alpha).")]
+    public AnimationCurve fadeCurve = new AnimationCurve(
+        new Keyframe(0f, 0f, 0f, 2f),
+        new Keyframe(1f, 1f, 0f, 0f));
+
     // ── Runtime state ──────────────────────────────────────────────────────────
     private float currentStamina;
-    private float trailStamina;      // lags behind currentStamina to show the red trail
+    private float trailStamina;
     private float noGrabTimer = 0f;
     private bool isDepleted = false;
+
+    // Fade state: 0 = fully hidden, 1 = fully visible
+    private float fadeProgress = 1f;
+
+    // Replenish-over-time state
+    private bool isReplenishing = false;
+    private float replenishStart    = 0f;   // stamina value when replenish began
+    private float replenishTarget   = 0f;   // stamina value to reach
+    private float replenishProgress = 0f;   // normalized [0, 1]
 
     private void Start()
     {
         currentStamina = maxStamina;
         trailStamina   = maxStamina;
+        fadeProgress   = 0f;
         UpdateUI(false);
     }
 
@@ -80,9 +104,41 @@ public class StaminaBar : MonoBehaviour
         bool lGrab      = GetVSBool("lGrab");
         bool isGrabbing = rGrab || lGrab;
 
-        // Determine if we are in a "recovering" state (not grabbing and stamina not full)
-        bool isRecovering = !isGrabbing && currentStamina < maxStamina;
+        // ── Forced replenish overrides drain ──────────────────────────────────
+        if (isReplenishing)
+        {
+            // Advance normalized progress at recoveryRate*2 per second,
+            // mapped over the total replenish range so the speed is consistent.
+            float range = replenishTarget - replenishStart;
+            float progressPerSecond = (range > 0f) ? (recoveryRate * 2f) / range : 1f;
+            replenishProgress += progressPerSecond * Time.deltaTime;
+            replenishProgress  = Mathf.Clamp01(replenishProgress);
 
+            // x*x*x ease-out curve: fast start, decelerates into target
+            float inv = 1f - replenishProgress;
+            float t = 1f - (inv * inv * inv);
+            currentStamina = Mathf.Lerp(replenishStart, replenishTarget, t);
+
+            if (replenishProgress >= 1f)
+            {
+                currentStamina    = replenishTarget;
+                isReplenishing    = false;
+                replenishProgress = 0f;
+            }
+
+            // Clear depletion if we've recovered enough
+            if (isDepleted && currentStamina >= maxStamina)
+            {
+                isDepleted   = false;
+                trailStamina = maxStamina;
+                SetVSBool("IsStaminaDepleted", false);
+            }
+
+            // Skip normal drain/recovery this frame
+            goto SkipDrainRecovery;
+        }
+
+        // ── Normal drain / recovery ───────────────────────────────────────────
         if (isGrabbing)
         {
             noGrabTimer = 0f;
@@ -96,7 +152,6 @@ public class StaminaBar : MonoBehaviour
                     float drainFactor = Mathf.Clamp01(speed / velocityDrainScale);
                     float drain       = drainFactor * maxDrainRate * Time.deltaTime;
 
-                    // Both hands grabbing = faster depletion
                     if (rGrab && lGrab)
                         drain *= bothGrabsMultiplier;
 
@@ -126,53 +181,69 @@ public class StaminaBar : MonoBehaviour
                     if (isDepleted)
                     {
                         isDepleted    = false;
-                        trailStamina  = maxStamina;   // ← reset trail to full
+                        trailStamina  = maxStamina;
                         SetVSBool("IsStaminaDepleted", false);
                     }
                 }
             }
         }
 
-        // Freeze trail when depleted; let it move normally otherwise
+        SkipDrainRecovery:
+
+        bool isRecovering = !isGrabbing && currentStamina < maxStamina;
+
         if (!isDepleted)
         {
             bool isActivelyRecovering = !isGrabbing && currentStamina < maxStamina && noGrabTimer >= recoveryDelay && currentStamina > trailStamina;
 
-            if (isActivelyRecovering)
+            if (isActivelyRecovering || isReplenishing)
             {
-                // Snap trail to fill only while stamina is actively increasing
                 trailStamina = currentStamina;
             }
             else
             {
-                // Lag behind during draining, or while waiting for recovery delay
                 trailStamina = Mathf.MoveTowards(trailStamina, currentStamina, trailDecaySpeed * Time.deltaTime);
                 trailStamina = Mathf.Min(trailStamina, currentStamina + maxTrailLag);
             }
         }
+
+        // ── Fade logic ────────────────────────────────────────────────────────
+        bool isAtMax = Mathf.Approximately(currentStamina, maxStamina);
+
+        if (isAtMax)
+            fadeProgress -= Time.deltaTime / fadeOutDuration;
+        else
+            fadeProgress += Time.deltaTime / fadeInDuration;
+
+        fadeProgress = Mathf.Clamp01(fadeProgress);
 
         UpdateUI(isRecovering);
     }
 
     private void UpdateUI(bool isRecovering)
     {
-        // Flash only when stamina was fully depleted AND is now recovering
         bool depletedRecovering = isDepleted && isRecovering;
+
+        float alpha = fadeCurve.Evaluate(fadeProgress);
 
         if (staminaFillImage != null)
         {
             staminaFillImage.fillAmount = currentStamina / maxStamina;
 
+            Color c;
             if (depletedRecovering)
             {
                 float t = Mathf.Abs(Mathf.Sin(Time.time * flashFrequency * Mathf.PI));
                 Color orange = new Color(1f, 0.5f, 0f, 1f);
-                staminaFillImage.color = Color.Lerp(recoveryColor, orange, t);
+                c = Color.Lerp(recoveryColor, orange, t);
             }
             else
             {
-                staminaFillImage.color = barColor;
+                c = barColor;
             }
+
+            c.a = alpha;
+            staminaFillImage.color = c;
         }
 
         if (staminaTrailImage != null)
@@ -180,29 +251,52 @@ public class StaminaBar : MonoBehaviour
             trailStamina = Mathf.Max(trailStamina, 0f);
             staminaTrailImage.fillAmount = trailStamina / maxStamina;
 
+            Color c;
             if (depletedRecovering)
             {
                 float t = Mathf.Abs(Mathf.Sin(Time.time * flashFrequency * Mathf.PI));
                 Color orange = new Color(1f, 0.5f, 0f, 1f);
-                staminaTrailImage.color = Color.Lerp(recoveryColor, orange, t);
+                c = Color.Lerp(recoveryColor, orange, t);
             }
             else
             {
-                staminaTrailImage.color = trailColor;
+                c = trailColor;
             }
+
+            c.a = alpha;
+            staminaTrailImage.color = c;
+        }
+
+        if (BackingImage != null)
+        {
+            Color c = BackingImage.color;
+            c.a = alpha;
+            BackingImage.color = c;
         }
     }
 
-    /// <summary>Call this to instantly restore stamina by the given amount.</summary>
+    /// <summary>
+    /// Restores the given amount of stamina over time at recoveryRate*2 per second
+    /// using a cubic (x³) ease-in curve, overriding any active drain.
+    /// </summary>
     public void ReplenishStamina(float amount)
     {
-        currentStamina = Mathf.Min(currentStamina + amount, maxStamina);
+        float target = Mathf.Min(currentStamina + amount, maxStamina);
 
-        if (isDepleted && currentStamina >= maxStamina)
+        if (isReplenishing)
         {
-            isDepleted   = false;
-            trailStamina = maxStamina;
-            SetVSBool("IsStaminaDepleted", false);
+            // Extend the target if a replenish is already in progress,
+            // restarting progress from the current stamina.
+            replenishStart    = currentStamina;
+            replenishTarget   = Mathf.Max(replenishTarget, target);
+            replenishProgress = 0f;
+        }
+        else
+        {
+            isReplenishing    = true;
+            replenishStart    = currentStamina;
+            replenishTarget   = target;
+            replenishProgress = 0f;
         }
     }
 

@@ -10,6 +10,7 @@ public class ReplenishTrigger : MonoBehaviour
         if (other.CompareTag("Player"))
         {
             GameController.Instance.StaminaBar.ReplenishStamina(replenishAmount);
+            Debug.Log($"Player stamina replenished by {replenishAmount}.");
             Destroy(gameObject);
         }
     }
