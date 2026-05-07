@@ -141,35 +141,44 @@ public class StaminaBar : MonoBehaviour
         // ── Normal drain / recovery ───────────────────────────────────────────
         if (isGrabbing)
         {
+            // Reset the no-grab timer while grabbing
             noGrabTimer = 0f;
-
-            if (!isDepleted)
-            {
-                float speed = playerRb.velocity.magnitude;
-
-                if (speed > velocityDeadzone)
-                {
-                    float drainFactor = Mathf.Clamp01(speed / velocityDrainScale);
-                    float drain       = drainFactor * maxDrainRate * Time.deltaTime;
-
-                    if (rGrab && lGrab)
-                        drain *= bothGrabsMultiplier;
-
-                    currentStamina -= drain;
-
-                    if (currentStamina <= 0f)
-                    {
-                        currentStamina = 0f;
-                        isDepleted     = true;
-                        SetVSBool("IsStaminaDepleted", true);
-                    }
-                }
-            }
         }
         else
         {
             noGrabTimer += Time.deltaTime;
+        }
 
+        if (!isDepleted)
+        {
+            float speed = playerRb.velocity.magnitude;
+
+            if (speed > velocityDeadzone)
+            {
+                float drainFactor = Mathf.Clamp01(speed / velocityDrainScale);
+                float drain = drainFactor * maxDrainRate * Time.deltaTime;
+
+                if (rGrab && lGrab)
+                    drain *= bothGrabsMultiplier;
+
+                currentStamina -= drain;
+
+                if (currentStamina <= 0f)
+                {
+                    currentStamina = 0f;
+                    isDepleted = true;
+                    SetVSBool("IsStaminaDepleted", true);
+                }
+            }
+            else if (noGrabTimer >= recoveryDelay && currentStamina < maxStamina)
+            {
+                // Recover stamina when not grabbing, after delay
+                currentStamina += recoveryRate * Time.deltaTime;
+                currentStamina = Mathf.Min(currentStamina, maxStamina);
+            }
+        }
+        else
+        {
             if (noGrabTimer >= recoveryDelay)
             {
                 currentStamina += recoveryRate * Time.deltaTime;
@@ -177,13 +186,9 @@ public class StaminaBar : MonoBehaviour
                 if (currentStamina >= maxStamina)
                 {
                     currentStamina = maxStamina;
-
-                    if (isDepleted)
-                    {
-                        isDepleted    = false;
-                        trailStamina  = maxStamina;
-                        SetVSBool("IsStaminaDepleted", false);
-                    }
+                    isDepleted     = false;
+                    trailStamina   = maxStamina;
+                    SetVSBool("IsStaminaDepleted", false);
                 }
             }
         }
