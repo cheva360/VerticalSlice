@@ -19590,8 +19590,8 @@ Transform:
   m_GameObject: {fileID: 1252199560}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: 0.1923292, w: 0.9813305}
-  m_LocalPosition: {x: 16.3448, y: 2.7, z: 3.6500003}
-  m_LocalScale: {x: 63.35873, y: 3.5481725, z: 17.792889}
+  m_LocalPosition: {x: 22.9, y: 12.8, z: 3.6500003}
+  m_LocalScale: {x: 37.465916, y: 3.5481725, z: 17.792889}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -31449,9 +31449,10 @@ MonoBehaviour:
   maxStamina: 200
   velocityDrainScale: 5
   maxDrainRate: 20
-  velocityDeadzone: 0.1
+  velocityDeadzone: 0.5
+  fallDrainCutoff: -3
   recoveryRate: 100
-  recoveryDelay: 2
+  recoveryDelay: 1
   trailDecaySpeed: 5
   trailColor: {r: 0.85, g: 0.1, b: 0.1, a: 1}
   barColor: {r: 0.3, g: 1, b: 0.4, a: 1}

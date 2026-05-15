@@ -32,6 +32,9 @@ public class StaminaBar : MonoBehaviour
     [Tooltip("Velocity below this threshold counts as 'not moving' and won't drain stamina.")]
     public float velocityDeadzone = 0.1f;
 
+    [Tooltip("If the player's Y velocity is below this (negative) value, stamina will not drain (e.g. -3 means falling faster than -3 stops drain).")]
+    public float fallDrainCutoff = -3f;
+
     [Tooltip("How fast stamina recovers per second when not grabbing.")]
     public float recoveryRate = 15f;
 
@@ -78,6 +81,7 @@ public class StaminaBar : MonoBehaviour
     private float trailStamina;
     private float noGrabTimer = 0f;
     private bool isDepleted = false;
+    private bool waitingForGrabAfterDepletion = false; // blocks drain until first grab after full depletion
 
     // Fade state: 0 = fully hidden, 1 = fully visible
     private float fadeProgress = 1f;
@@ -143,19 +147,25 @@ public class StaminaBar : MonoBehaviour
         {
             // Reset the no-grab timer while grabbing
             noGrabTimer = 0f;
+
+            // Player grabbed — unlock drain if we were waiting after a depletion recovery
+            if (waitingForGrabAfterDepletion)
+                waitingForGrabAfterDepletion = false;
         }
         else
         {
             noGrabTimer += Time.deltaTime;
         }
 
+        float currentSpeed = playerRb.velocity.magnitude;
+        float yVelocity    = playerRb.velocity.y;
+
         if (!isDepleted)
         {
-            float speed = playerRb.velocity.magnitude;
-
-            if (speed > velocityDeadzone)
+            if (!waitingForGrabAfterDepletion && currentSpeed > velocityDeadzone
+                && yVelocity >= fallDrainCutoff)
             {
-                float drainFactor = Mathf.Clamp01(speed / velocityDrainScale);
+                float drainFactor = Mathf.Clamp01(currentSpeed / velocityDrainScale);
                 float drain = drainFactor * maxDrainRate * Time.deltaTime;
 
                 if (rGrab && lGrab)
@@ -170,16 +180,18 @@ public class StaminaBar : MonoBehaviour
                     SetVSBool("IsStaminaDepleted", true);
                 }
             }
-            else if (noGrabTimer >= recoveryDelay && currentStamina < maxStamina)
+            else if (!waitingForGrabAfterDepletion && noGrabTimer >= recoveryDelay
+                     && currentStamina < maxStamina && currentSpeed <= velocityDeadzone)
             {
-                // Recover stamina when not grabbing, after delay
+                // Recover stamina when not grabbing, after delay, and only when nearly still
                 currentStamina += recoveryRate * Time.deltaTime;
                 currentStamina = Mathf.Min(currentStamina, maxStamina);
             }
         }
         else
         {
-            if (noGrabTimer >= recoveryDelay)
+            // Only recover from depletion if the player is below the velocity threshold
+            if (noGrabTimer >= recoveryDelay && currentSpeed <= velocityDeadzone)
             {
                 currentStamina += recoveryRate * Time.deltaTime;
 
@@ -188,6 +200,7 @@ public class StaminaBar : MonoBehaviour
                     currentStamina = maxStamina;
                     isDepleted     = false;
                     trailStamina   = maxStamina;
+                    waitingForGrabAfterDepletion = true; // block drain until next grab
                     SetVSBool("IsStaminaDepleted", false);
                 }
             }
