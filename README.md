@@ -8,7 +8,27 @@
 
 
 ## Milestone 2 Devlog
-Milestone 2 Devlog goes here.
+
+Stamina Complicating feature:
+- Zelda style visual stamina
+  - Make white circle donut
+  - Make it radial fill in ui settings
+- Dynamic with movement
+  - Check velocity of player
+  - If above certain threshold deplete stamina
+  - If below certain negative y velocity, stop depleting
+- Red trail
+  - Add another radial fill behind that lags behind the green fill
+  - Updates slower lerping to green radial fill but is also clamped
+- Replenishing
+  - Stamina will slowly replenish if player is below a certain velocity threshold and not grabbing
+  - Green bubbles will replenish stamina with an exponential ease-out lerp.
+
+1. Yes the breakdown helped a lot in thinking about the logic of the code. Sometimes ill dive head first without thinking about it first, and itll cost me time because I haven't figured out exactly what I need to do. Laying things out helps out a ton.
+2. I specifically call a c# method from my main player graph for the double arm constraints. The math was just getting too complicated and I couldn't get it to work how I wanted to in visual scripting, so I implemented it as a c# method instead.
+3. You will be grading the stamina system. It should work how I outlined it in my readme. 
+
+
 ## Milestone 3 Devlog
 Milestone 3 Devlog goes here.
 ## Milestone 4 Devlog
