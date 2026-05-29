@@ -30,7 +30,26 @@ Stamina Complicating feature:
 
 
 ## Milestone 3 Devlog
-Milestone 3 Devlog goes here.
+1. Shader Graphs
+There are two main shader graphs in Sandwich Climbers:
+- The Stamina Bubble fade shader graph
+- The grass triplanar shadar graph
+
+The simplest of the two is the triplanar grass shader graph. It uses the world position of the grass game objects to determine the UV coordinates for the texture. It essentially acts like a tiled texture but in 2d, and makes the texture look seamless all across completely different objects. 
+The more complex of the two is the fade shader graph. I already explained it a bit in the last devlog, but ill go over it again. When the player enters a trigger, the script sets the IsFade bool to true and the start amount to time.time. The shader then subtracts the start time from the current time to get the elapsed time, and is divided by the duration float as well as put into a smooth step to create the ease effect. 
+
+Here is the shader graph for the stamina bubble fade effect:
+
+2. Improvements
+There are two major improvements in this build over the last.
+The first is fixing the major leg bug glitch. Whenever it occured, it would essentially break the entire players limbs and make them fly all over the place. I changed the legs to ignore all collisions and rely on the hip box collider instead.
+The second improvement is adding rotation to the player, and a smooth camera following script. The camera script lerps the camera to the player with a ease out curve, and an adjusutable speed. This was created first because the player rotation was also rotating the camera, and then turned into a lerp for smoothness. The player rotation was added by ignoring all the collisions on all the limbs except the hips, allowing the rest of the body and most importantly the spine to move allong with the arm iks. With the added gravity to the legs, and changing to the angles on the character joints, it adds a much more natural ragdoll feel to the game which I believe fits the style of the game. 
+
+3. Gameplay Changes
+This could also be considered an improvement, but a main part of playtesting feedback was that the stamina bubbles didn't respawn, meaning that the player could get stuck without enough stamina to get to the next section. As well as this, I lowered the friction a bit on the player so if they run out of stamina near the end, they have the chance to slide all the way down to the start, in true foddian fashion. This overall makes for gameplay more similar to the vision, and adds a better feel to the game. 
+
+
+
 ## Milestone 4 Devlog
 Milestone 4 Devlog goes here.
 ## Final Devlog

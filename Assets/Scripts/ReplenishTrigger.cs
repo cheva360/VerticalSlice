@@ -21,8 +21,29 @@ public class ReplenishTrigger : MonoBehaviour
 
                 rend.material.SetFloat("_StartTime", Time.time);
             }
-            //wait for 0.5fs then destroy
-            Destroy(gameObject, 0.5f);
+            //wait for 0.5fs then disable the object
+            StartCoroutine(DisableAfterDelay(0.5f));
+
+
+        }
+    }
+
+    //disable object coroutine
+    private System.Collections.IEnumerator DisableAfterDelay(float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        //disable renderer
+        Renderer rend = GetComponent<Renderer>();
+        rend.enabled = false;
+
+        //wait for 5s then enable the object again
+        yield return new WaitForSeconds(5f);
+        hasBeenUsed = false;
+        if (rend != null)
+        {
+            rend.enabled = true;
+            rend.material.SetFloat("_IsFade", 0f);
+            rend.material.SetFloat("_StartTime", 1f);
         }
     }
 }
