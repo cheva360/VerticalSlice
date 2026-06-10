@@ -1,6 +1,8 @@
 using UnityEngine;
 using UnityEngine.UI;
 using Unity.VisualScripting;
+using UnityEngine.Rendering;
+using UnityEngine.Rendering.Universal;
 
 public class StaminaBar : MonoBehaviour
 {
@@ -17,7 +19,17 @@ public class StaminaBar : MonoBehaviour
     [Tooltip("A second radial Image placed BEHIND the green fill — shows the red drain trail.")]
     [SerializeField] private Image staminaTrailImage;
     [SerializeField] private Image BackingImage;
+    [SerializeField] private Image BackingImage2;
 
+    [Header("Low Stamina Vignette")]
+    [Tooltip("Volume containing the Vignette override to control.")]
+    [SerializeField] private Volume postProcessVolume;
+
+    [Tooltip("Percent of stamina where the vignette begins increasing.")]
+    [SerializeField, Range(0f, 1f)] private float lowStaminaThresholdPercent = 0.2f;
+
+    [Tooltip("Maximum vignette intensity when stamina reaches 0.")]
+    [SerializeField, Range(0f, 1f)] private float maxVignetteIntensity = 0.2f;
 
     [Header("Stamina Settings")]
     [Tooltip("Maximum stamina value.")]
@@ -88,15 +100,26 @@ public class StaminaBar : MonoBehaviour
 
     // Replenish-over-time state
     private bool isReplenishing = false;
-    private float replenishStart    = 0f;   // stamina value when replenish began
-    private float replenishTarget   = 0f;   // stamina value to reach
-    private float replenishProgress = 0f;   // normalized [0, 1]
+    private float replenishStart = 0f;   // stamina value when replenish began
+    private float replenishTarget = 0f;  // stamina value to reach
+    private float replenishProgress = 0f; // normalized [0, 1]
+
+    private Vignette staminaVignette;
 
     private void Start()
     {
         currentStamina = maxStamina;
-        trailStamina   = maxStamina;
-        fadeProgress   = 0f;
+        trailStamina = maxStamina;
+        fadeProgress = 0f;
+
+        if (postProcessVolume != null && postProcessVolume.profile != null)
+        {
+            postProcessVolume.profile.TryGet(out staminaVignette);
+
+            if (staminaVignette != null)
+                staminaVignette.intensity.Override(0f);
+        }
+
         UpdateUI(false);
     }
 
@@ -104,8 +127,8 @@ public class StaminaBar : MonoBehaviour
     {
         if (visualScriptingTarget == null || playerRb == null) return;
 
-        bool rGrab      = GetVSBool("rGrab");
-        bool lGrab      = GetVSBool("lGrab");
+        bool rGrab = GetVSBool("rGrab");
+        bool lGrab = GetVSBool("lGrab");
         bool isGrabbing = rGrab || lGrab;
 
         // ── Forced replenish overrides drain ──────────────────────────────────
@@ -116,7 +139,7 @@ public class StaminaBar : MonoBehaviour
             float range = replenishTarget - replenishStart;
             float progressPerSecond = (range > 0f) ? (recoveryRate * 2f) / range : 1f;
             replenishProgress += progressPerSecond * Time.deltaTime;
-            replenishProgress  = Mathf.Clamp01(replenishProgress);
+            replenishProgress = Mathf.Clamp01(replenishProgress);
 
             // x*x*x ease-out curve: fast start, decelerates into target
             float inv = 1f - replenishProgress;
@@ -125,15 +148,15 @@ public class StaminaBar : MonoBehaviour
 
             if (replenishProgress >= 1f)
             {
-                currentStamina    = replenishTarget;
-                isReplenishing    = false;
+                currentStamina = replenishTarget;
+                isReplenishing = false;
                 replenishProgress = 0f;
             }
 
             // Clear depletion if we've recovered enough
             if (isDepleted && currentStamina >= maxStamina)
             {
-                isDepleted   = false;
+                isDepleted = false;
                 trailStamina = maxStamina;
                 SetVSBool("IsStaminaDepleted", false);
             }
@@ -158,7 +181,7 @@ public class StaminaBar : MonoBehaviour
         }
 
         float currentSpeed = playerRb.velocity.magnitude;
-        float yVelocity    = playerRb.velocity.y;
+        float yVelocity = playerRb.velocity.y;
 
         if (!isDepleted)
         {
@@ -198,15 +221,15 @@ public class StaminaBar : MonoBehaviour
                 if (currentStamina >= maxStamina)
                 {
                     currentStamina = maxStamina;
-                    isDepleted     = false;
-                    trailStamina   = maxStamina;
+                    isDepleted = false;
+                    trailStamina = maxStamina;
                     waitingForGrabAfterDepletion = true; // block drain until next grab
                     SetVSBool("IsStaminaDepleted", false);
                 }
             }
         }
 
-        SkipDrainRecovery:
+    SkipDrainRecovery:
 
         bool isRecovering = !isGrabbing && currentStamina < maxStamina;
 
@@ -291,6 +314,29 @@ public class StaminaBar : MonoBehaviour
             c.a = alpha;
             BackingImage.color = c;
         }
+
+        if (BackingImage2 != null)
+        {
+            Color c = BackingImage2.color;
+            c.a = alpha;
+            BackingImage2.color = c;
+        }
+
+        UpdateVignette();
+    }
+
+    private void UpdateVignette()
+    {
+        if (staminaVignette == null || maxStamina <= 0f)
+            return;
+
+        float thresholdStamina = maxStamina * lowStaminaThresholdPercent;
+
+        // threshold stamina => 0 intensity, 0 stamina => max intensity
+        float t = Mathf.InverseLerp(thresholdStamina, 0f, currentStamina);
+        float intensity = Mathf.Lerp(0f, maxVignetteIntensity, t);
+
+        staminaVignette.intensity.Override(intensity);
     }
 
     /// <summary>
@@ -305,15 +351,15 @@ public class StaminaBar : MonoBehaviour
         {
             // Extend the target if a replenish is already in progress,
             // restarting progress from the current stamina.
-            replenishStart    = currentStamina;
-            replenishTarget   = Mathf.Max(replenishTarget, target);
+            replenishStart = currentStamina;
+            replenishTarget = Mathf.Max(replenishTarget, target);
             replenishProgress = 0f;
         }
         else
         {
-            isReplenishing    = true;
-            replenishStart    = currentStamina;
-            replenishTarget   = target;
+            isReplenishing = true;
+            replenishStart = currentStamina;
+            replenishTarget = target;
             replenishProgress = 0f;
         }
     }
@@ -322,13 +368,13 @@ public class StaminaBar : MonoBehaviour
 
     private bool GetVSBool(string variableName)
     {
-        try   { return Variables.Object(visualScriptingTarget).Get<bool>(variableName); }
+        try { return Variables.Object(visualScriptingTarget).Get<bool>(variableName); }
         catch { return false; }
     }
 
     private void SetVSBool(string variableName, bool value)
     {
-        try   { Variables.Object(visualScriptingTarget).Set(variableName, value); }
+        try { Variables.Object(visualScriptingTarget).Set(variableName, value); }
         catch (System.Exception e)
         { Debug.LogWarning($"[StaminaBar] Could not set VS variable '{variableName}': {e.Message}"); }
     }

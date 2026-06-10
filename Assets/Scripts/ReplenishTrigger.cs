@@ -5,6 +5,7 @@ public class ReplenishTrigger : MonoBehaviour
     [Tooltip("Amount of stamina to restore on contact.")]
     public float replenishAmount = 100f;
     [SerializeField] private bool hasBeenUsed = false;
+    [SerializeField] private float fadeDuration = 0.5f;
 
     private void OnTriggerEnter(Collider other)
     {
@@ -17,14 +18,11 @@ public class ReplenishTrigger : MonoBehaviour
             Renderer rend = GetComponent<Renderer>();
             if (rend != null)
             {
+                rend.material.SetFloat("_Duration", fadeDuration);
                 rend.material.SetFloat("_IsFade", 1f);
-
                 rend.material.SetFloat("_StartTime", Time.time);
+                StartCoroutine(DisableAfterDelay(fadeDuration));
             }
-            //wait for 0.5fs then disable the object
-            StartCoroutine(DisableAfterDelay(0.5f));
-
-
         }
     }
 
