@@ -4,14 +4,39 @@ public class ReplenishTrigger : MonoBehaviour
 {
     [Tooltip("Amount of stamina to restore on contact.")]
     public float replenishAmount = 100f;
+
     [SerializeField] private bool hasBeenUsed = false;
     [SerializeField] private float fadeDuration = 0.5f;
+
+    [Header("Audio")]
+    [Tooltip("Sound effect played when the player triggers this pickup.")]
+    [SerializeField] private AudioClip triggerSfx;
+
+    [Tooltip("Volume for the trigger sound effect.")]
+    [SerializeField, Range(0f, 1f)] private float triggerSfxVolume = 1f;
+
+    private AudioSource audioSource;
+
+    private void Awake()
+    {
+        audioSource = GetComponent<AudioSource>();
+
+        if (audioSource == null)
+            audioSource = gameObject.AddComponent<AudioSource>();
+
+        audioSource.playOnAwake = false;
+        audioSource.spatialBlend = 0f;
+    }
 
     private void OnTriggerEnter(Collider other)
     {
         if (other.CompareTag("Player") && !hasBeenUsed)
         {
             hasBeenUsed = true;
+
+            if (triggerSfx != null)
+                audioSource.PlayOneShot(triggerSfx, triggerSfxVolume);
+
             GameController.Instance.StaminaBar.ReplenishStamina(replenishAmount);
             Debug.Log($"Player stamina replenished by {replenishAmount}.");
 
@@ -30,6 +55,7 @@ public class ReplenishTrigger : MonoBehaviour
     private System.Collections.IEnumerator DisableAfterDelay(float delay)
     {
         yield return new WaitForSeconds(delay);
+
         //disable renderer
         Renderer rend = GetComponent<Renderer>();
         rend.enabled = false;
@@ -37,6 +63,7 @@ public class ReplenishTrigger : MonoBehaviour
         //wait for 5s then enable the object again
         yield return new WaitForSeconds(5f);
         hasBeenUsed = false;
+
         if (rend != null)
         {
             rend.enabled = true;

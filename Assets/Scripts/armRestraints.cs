@@ -1,11 +1,12 @@
 ﻿using UnityEngine;
+using Unity.VisualScripting;
 
 public class DoubleCircularConstraint : MonoBehaviour
 {
     [Header("Anchors")]
     [SerializeField] private Rigidbody handArb;
     [SerializeField] private Rigidbody handBrb;
-    
+
     private Transform handA;
     private Transform handB;
 
@@ -15,11 +16,31 @@ public class DoubleCircularConstraint : MonoBehaviour
 
     [Tooltip("How strictly the velocity is killed when hitting the edge.")]
     public float frictionOnEdge = 1f;
-    
+
     [Tooltip("Small buffer to prevent jittering (e.g., 0.01f)")]
     public float edgeTolerance = 0.01f;
 
     [SerializeField] private Rigidbody rb;
+
+    [Header("Grab Audio")]
+    [Tooltip("Object that contains the Visual Scripting grab variables.")]
+    [SerializeField] private GameObject visualScriptingTarget;
+
+    [Tooltip("Dedicated audio source for grab/release sounds. If left empty, one will be added automatically.")]
+    [SerializeField] private AudioSource grabReleaseAudioSource;
+
+    [Tooltip("Sound played when either hand starts grabbing.")]
+    [SerializeField] private AudioClip grabSfx;
+
+    [Tooltip("Sound played when either hand releases.")]
+    [SerializeField] private AudioClip releaseSfx;
+
+    [Tooltip("Volume used for grab and release sounds.")]
+    [SerializeField, Range(0f, 1f)] private float sfxVolume = 1f;
+
+    private AudioSource audioSource;
+    private bool previousRGrab;
+    private bool previousLGrab;
 
     void Awake()
     {
@@ -31,6 +52,24 @@ public class DoubleCircularConstraint : MonoBehaviour
         GameObject anchorB = new GameObject("HandB_Anchor");
         handB = anchorB.transform;
         handB.SetParent(transform);
+
+        audioSource = grabReleaseAudioSource != null
+            ? grabReleaseAudioSource
+            : GetComponent<AudioSource>();
+
+        if (audioSource == null)
+            audioSource = gameObject.AddComponent<AudioSource>();
+
+        audioSource.playOnAwake = false;
+        audioSource.spatialBlend = 0f;
+
+        previousRGrab = GetVSBool("rGrab");
+        previousLGrab = GetVSBool("lGrab");
+    }
+
+    void Update()
+    {
+        UpdateGrabAudio();
     }
 
     public void ArmUpdate()
@@ -85,5 +124,34 @@ public class DoubleCircularConstraint : MonoBehaviour
         }
 
         return false;
+    }
+
+    private void UpdateGrabAudio()
+    {
+        if (visualScriptingTarget == null || audioSource == null)
+            return;
+
+        bool currentRGrab = GetVSBool("rGrab");
+        bool currentLGrab = GetVSBool("lGrab");
+
+        bool rightJustGrabbed = currentRGrab && !previousRGrab;
+        bool leftJustGrabbed = currentLGrab && !previousLGrab;
+        bool rightJustReleased = !currentRGrab && previousRGrab;
+        bool leftJustReleased = !currentLGrab && previousLGrab;
+
+        if ((rightJustGrabbed || leftJustGrabbed) && grabSfx != null)
+            audioSource.PlayOneShot(grabSfx, sfxVolume);
+
+        if ((rightJustReleased || leftJustReleased) && releaseSfx != null)
+            audioSource.PlayOneShot(releaseSfx, sfxVolume);
+
+        previousRGrab = currentRGrab;
+        previousLGrab = currentLGrab;
+    }
+
+    private bool GetVSBool(string variableName)
+    {
+        try { return Variables.Object(visualScriptingTarget).Get<bool>(variableName); }
+        catch { return false; }
     }
 }
