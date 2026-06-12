@@ -53,11 +53,9 @@ The second improvement is adding rotation to the player, and a smooth camera fol
 This could also be considered an improvement, but a main part of playtesting feedback was that the stamina bubbles didn't respawn, meaning that the player could get stuck without enough stamina to get to the next section. As well as this, I lowered the friction a bit on the player so if they run out of stamina near the end, they have the chance to slide all the way down to the start, in true foddian fashion. This overall makes for gameplay more similar to the vision, and adds a better feel to the game. 
 
 
-
-## Milestone 4 Devlog
-Milestone 4 Devlog goes here.
 ## Final Devlog
-Final Devlog goes here.
+
+
 ## Open-source assets
 Raw Grab SFX:
 
