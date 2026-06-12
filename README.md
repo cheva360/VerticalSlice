@@ -54,7 +54,11 @@ This could also be considered an improvement, but a main part of playtesting fee
 
 
 ## Final Devlog
+1. The core gameplay loop of Sandwich Climbers is very foddian in nature. The player climbs using a physics based movement system in which you independently drive each arm with the joysticks or mouse, and use them to pull yourself up. You must maintain your stamina either by regaining stamina with the bubbles, or through effecient movement to get to the next resting point. These main mechanics is what would also drive the full game, and the vertical slice is meant to illustrate just a small level section of what would be a huge mountain. 
 
+2. Shown in this shader graph screenshot the vignette is driven directly by the player's stamina. As the players stamina depletes under a certain percent threshold, the vignette slowly starts to increase in intensity. The vignette is controlled by the global volume in the scene which is accessed in the StaminaBar script via a serialized field variable. 
+
+3. I broke down Sandwich Climber mostly into tasks and I also broke down those tasks further. This for the most part worked during development, but I found that the major system break downs at the start of the quarter were also vital in helping me understand the scope of the project, as well as how I wanted to implement the mechanics. I think the main thing I would do differently is generally just write a bit more in the breakdowns. I did one big breakdown at the very start, but a lot of things and ideas changed all throughout the development of the vertical slice, so upkeeping documentation and the brainstorming of the game is pretty important. I think the main thing that went well or in general my style of working was that I like to have a very good mental image of how the mechanics will feel to play, or how itll look, and I think I executed the game pretty accurately to the vision of the game I had in mind. It was also through playing a lot of games and finding a lot of references that I was able to write and formulate a clear vision of the game that really helped with keeping me on task and knowing exactly what I wanted out of the game. 
 
 ## Open-source assets
 Raw Grab SFX:
